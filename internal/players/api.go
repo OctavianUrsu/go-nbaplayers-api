@@ -117,27 +117,33 @@ func (pr PlayersResource) Get(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
-	i := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(i)
+	// Get ID from URL Param
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("%v is %T", id, id)
-
+	// Open JSON file and if err => handle it
 	playersJson, err := os.Open(playersPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	// Defer closing the file
 	defer playersJson.Close()
 
+	// Read the file as a byte array
 	byteValue, _ := ioutil.ReadAll(playersJson)
 
+	// Initialize the array that will store players
 	var allPlayers []Player
 
+	// Unmarshal the byteValue that contains our json info
+	// and store it in our array
 	json.Unmarshal(byteValue, &allPlayers)
 
+	// Loop through all players and
+	// find the one that matches our id
 	for _, player := range allPlayers {
 		if player.PlayerId == id {
 			json.NewEncoder(w).Encode(player)
