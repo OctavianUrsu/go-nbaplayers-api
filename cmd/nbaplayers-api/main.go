@@ -20,6 +20,7 @@ func main() {
 		w.Write([]byte("NBA Players API"))
 	})
 
+	// Route and handle /players
 	r.Mount("/players", players.PlayersResource{}.Routes())
 
 	// Build HTTP Server

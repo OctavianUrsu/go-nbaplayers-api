@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -26,9 +27,14 @@ func (pr PlayersResource) Routes() chi.Router {
 	r.Get("/", pr.Players)
 	r.Post("/", pr.Create)
 
+	r.Route("/{id}", func(r chi.Router) {
+		r.Get("/", pr.Get)
+	})
+
 	return r
 }
 
+// Request Handler - GET /players - Read a list of players.
 func (pr PlayersResource) Players(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
@@ -54,8 +60,10 @@ func (pr PlayersResource) Players(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(allPlayers)
 }
 
+// Request Handler - POST /players - Create a new player.
 func (pr PlayersResource) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 
 	// Declare variable for new player
 	var newPlayer Player
@@ -101,5 +109,38 @@ func (pr PlayersResource) Create(w http.ResponseWriter, r *http.Request) {
 		}
 
 		io.WriteString(w, "New player created!")
+	}
+}
+
+// Request Handler - GET /players/{id} - Read a specific player.
+func (pr PlayersResource) Get(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+
+	i := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(i)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%v is %T", id, id)
+
+	playersJson, err := os.Open(playersPath)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer playersJson.Close()
+
+	byteValue, _ := ioutil.ReadAll(playersJson)
+
+	var allPlayers []Player
+
+	json.Unmarshal(byteValue, &allPlayers)
+
+	for _, player := range allPlayers {
+		if player.PlayerId == id {
+			json.NewEncoder(w).Encode(player)
+		}
 	}
 }
