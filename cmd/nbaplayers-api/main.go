@@ -1,26 +1,27 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
 
 	"github.com/OctavianUrsu/go-nbaplayers-api/internal/players"
-	"github.com/OctavianUrsu/go-nbaplayers-api/internal/teams"
+	"github.com/go-chi/chi/v5"
 )
 
-const PORT string = ":8080"
+const PORT string = "8080"
 
 func main() {
+	log.Printf("Starting up on http://localhost:%s", PORT)
+
+	r := chi.NewRouter()
+
 	// Route and handle home page
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/players", players.HandlePlayers)
-	http.HandleFunc("/teams", teams.ReturnAllTeams)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("NBA Players API"))
+	})
+
+	r.Mount("/players", players.PlayersResource{}.Routes())
 
 	// Build HTTP Server
-	log.Fatal(http.ListenAndServe(PORT, nil))
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Home of NBA Players API")
+	log.Fatal(http.ListenAndServe(":"+PORT, r))
 }

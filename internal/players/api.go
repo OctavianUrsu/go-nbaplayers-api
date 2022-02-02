@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/go-chi/chi/v5"
 )
 
-const playersPath string = "./internal/players/players.json"
-
+type PlayersResource struct{}
 type Player struct {
 	PlayerId  int    `json:"playerId"`
 	FirstName string `json:"firstName"`
@@ -18,30 +19,19 @@ type Player struct {
 	TeamId    int    `json:"teamId"`
 }
 
-func HandlePlayers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	switch r.Method {
-	case "GET":
-		w.WriteHeader(http.StatusOK)
-		allPlayers := getAllPlayers()
+const playersPath string = "./internal/players/players.json"
 
-		// Encode our array into the response
-		json.NewEncoder(w).Encode(allPlayers)
+func (pr PlayersResource) Routes() chi.Router {
+	r := chi.NewRouter()
+	r.Get("/", pr.Players)
+	r.Post("/", pr.Create)
 
-	case "POST":
-		w.WriteHeader(http.StatusCreated)
-
-		req, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		postRes := createNewPlayer(req)
-		io.WriteString(w, postRes)
-	}
+	return r
 }
 
-func getAllPlayers() []Player {
+func (pr PlayersResource) Players(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+
 	// Open JSON file and if err => handle it
 	playersJson, err := os.Open(playersPath)
 	if err != nil {
@@ -61,19 +51,27 @@ func getAllPlayers() []Player {
 	// and store it in our array
 	json.Unmarshal(byteValue, &allPlayers)
 
-	return allPlayers
+	json.NewEncoder(w).Encode(allPlayers)
 }
 
-func createNewPlayer(p []byte) string {
+func (pr PlayersResource) Create(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusCreated)
+
 	// Declare variable for new player
 	var newPlayer Player
 
+	// Read request
+	req, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	// Unmarshal new player info to new player var
-	json.Unmarshal(p, &newPlayer)
+	json.Unmarshal(req, &newPlayer)
 
 	// If request has no data log an error
 	if newPlayer.FirstName == "" || newPlayer.LastName == "" || newPlayer.PlayerId == 0 {
-		return "Please complete all required fields!"
+		io.WriteString(w, "Please complete all required fields!")
 	} else {
 		// Read all players from the JSON fileDB
 		file, err := ioutil.ReadFile(playersPath)
@@ -102,6 +100,6 @@ func createNewPlayer(p []byte) string {
 			fmt.Println(err)
 		}
 
-		return "New player created!"
+		io.WriteString(w, "New player created!")
 	}
 }
