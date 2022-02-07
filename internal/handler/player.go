@@ -14,10 +14,11 @@ import (
 
 // Request Handler - GET /players - Get all players.
 func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+
 	players := h.playerService.GetAll()
 	json.NewEncoder(w).Encode(players)
 
-	w.WriteHeader(http.StatusOK)
 }
 
 // Request Handler - POST /players - Add new player.
@@ -33,12 +34,12 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 
 	player, err := h.playerService.Create(playerDTO)
 	if err != nil {
-		io.WriteString(w, "complete the required fields")
 		w.WriteHeader(http.StatusNotAcceptable)
+		io.WriteString(w, "complete the required fields")
 		return
 	} else {
-		json.NewEncoder(w).Encode(player)
 		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(player)
 	}
 }
 
@@ -52,8 +53,8 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 
 	player := h.playerService.GetById(id)
 
-	json.NewEncoder(w).Encode(player)
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(player)
 }
 
 // Request Handler - PUT /players/{id} - Update player by Id.
@@ -74,8 +75,8 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 
 	player := h.playerService.Update(id, playerDTO)
 
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(player)
-	w.WriteHeader(http.StatusOK)
 }
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
@@ -89,6 +90,6 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 
 	player := h.playerService.Delete(id)
 
+	w.WriteHeader(http.StatusGone)
 	json.NewEncoder(w).Encode(player)
-	w.WriteHeader(http.StatusOK)
 }
