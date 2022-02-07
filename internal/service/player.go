@@ -5,35 +5,26 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/internal/helpers"
 )
 
-type PlayerService struct{}
+type PlayerService struct {
+	helpers *helpers.Helpers
+}
 
+// JSON Path
 const playersJsonPath = "./players.json"
+
+// Constructor
+func NewService(h *helpers.Helpers) *PlayerService {
+	return &PlayerService{h}
+}
 
 // Request Service - GET /players - Get all players.
 func (ps *PlayerService) GetAll() []playerStruct.Player {
-	// Open JSON file and if err => handle it
-	playersJson, err := os.Open(playersJsonPath)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Defer closing the file
-	defer playersJson.Close()
-
-	// Read the file as a byte array
-	byteValue, _ := ioutil.ReadAll(playersJson)
-
-	// Initialize the array that will store players
-	var allPlayers []playerStruct.Player
-
-	// Unmarshal the byteValue that contains our json info
-	// and store it in our array
-	json.Unmarshal(byteValue, &allPlayers)
+	allPlayers := ps.helpers.UnmarshalPlayersJson(playersJsonPath)
 
 	return allPlayers
 }
@@ -77,25 +68,10 @@ func (ps *PlayerService) Create(playerDTO playerStruct.Player) (playerStruct.Pla
 
 // Request Service - GET /players/{id} - Get player by Id.
 func (ps *PlayerService) GetById(id int) playerStruct.Player {
-	// Open JSON file and if err => handle it
-	playersJson, err := os.Open(playersJsonPath)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Defer closing the file
-	defer playersJson.Close()
-
-	// Read the file as a byte array
-	byteValue, _ := ioutil.ReadAll(playersJson)
+	allPlayers := ps.helpers.UnmarshalPlayersJson(playersJsonPath)
 
 	// Initialize the array that will store players
-	var allPlayers []playerStruct.Player
 	var newPlayer playerStruct.Player
-
-	// Unmarshal the byteValue that contains our json info
-	// and store it in our array
-	json.Unmarshal(byteValue, &allPlayers)
 
 	// Loop through all players and
 	// find the one that matches our id
@@ -110,26 +86,11 @@ func (ps *PlayerService) GetById(id int) playerStruct.Player {
 
 // Request Service - PUT /players/{id} - Update player by Id.
 func (ps *PlayerService) Update(id int, playerDTO playerStruct.Player) playerStruct.Player {
-	// Open JSON file and if err => handle it
-	playersJson, err := os.Open(playersJsonPath)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Defer closing the file
-	defer playersJson.Close()
-
-	// Read the file as a byte array
-	byteValue, _ := ioutil.ReadAll(playersJson)
+	allPlayers := ps.helpers.UnmarshalPlayersJson(playersJsonPath)
 
 	// Initialize the array that will store players
-	var allPlayers []playerStruct.Player
 	var updatePlayer playerStruct.Player = playerDTO
 	updatePlayer.PlayerId = id
-
-	// Unmarshal the byteValue that contains our json info
-	// and store it in our array
-	json.Unmarshal(byteValue, &allPlayers)
 
 	// Loop through all players and
 	// find the one that matches our id
@@ -143,7 +104,7 @@ func (ps *PlayerService) Update(id int, playerDTO playerStruct.Player) playerStr
 	}
 
 	// Marshal back all players into JSON
-	byteValue, err = json.Marshal(allPlayers)
+	byteValue, err := json.Marshal(allPlayers)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -159,25 +120,10 @@ func (ps *PlayerService) Update(id int, playerDTO playerStruct.Player) playerStr
 
 // Request Service - DELETE /players/{id} - Delete player by Id.
 func (ps *PlayerService) Delete(id int) playerStruct.Player {
-	// Open JSON file and if err => handle it
-	playersJson, err := os.Open(playersJsonPath)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Defer closing the file
-	defer playersJson.Close()
-
-	// Read the file as a byte array
-	byteValue, _ := ioutil.ReadAll(playersJson)
+	allPlayers := ps.helpers.UnmarshalPlayersJson(playersJsonPath)
 
 	// Initialize the array that will store players
-	var allPlayers []playerStruct.Player
 	var deletedPlayer playerStruct.Player
-
-	// Unmarshal the byteValue that contains our json info
-	// and store it in our array
-	json.Unmarshal(byteValue, &allPlayers)
 
 	// Loop through all players and
 	// find the one that matches our id
@@ -189,7 +135,7 @@ func (ps *PlayerService) Delete(id int) playerStruct.Player {
 	}
 
 	// Marshal back all players into JSON
-	byteValue, err = json.Marshal(allPlayers)
+	byteValue, err := json.Marshal(allPlayers)
 	if err != nil {
 		fmt.Println(err)
 	}
