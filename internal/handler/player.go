@@ -2,14 +2,13 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"github.com/go-chi/chi/v5"
+	"github.com/sirupsen/logrus"
 )
 
 // Request Handler - GET /players - Get all players.
@@ -18,14 +17,13 @@ func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
 
 	players := h.playerService.GetAll()
 	json.NewEncoder(w).Encode(players)
-
 }
 
 // Request Handler - POST /players - Add new player.
 func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
-	req, err := ioutil.ReadAll(r.Body)
+	req, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		logrus.New().Warn(err)
 	}
 
 	var playerDTO playerStruct.Player
@@ -35,8 +33,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	player, err := h.playerService.Create(playerDTO)
 	if err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
-		io.WriteString(w, "complete the required fields")
-		return
+		w.Write([]byte(err.Error()))
 	} else {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(player)
@@ -45,10 +42,9 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 
 // Request Handler - GET /players/{id} - Get player by Id.
 func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
-	// Get ID from URL Param
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		fmt.Println(err)
+		logrus.New().Warn(err)
 	}
 
 	player := h.playerService.GetById(id)
@@ -62,30 +58,35 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get ID from URL Param
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		fmt.Println(err)
-		return
+		logrus.New().Warn(err)
+	}
+
+	req, err := io.ReadAll(r.Body)
+	if err != nil {
+		logrus.New().Warn(err)
 	}
 
 	var playerDTO playerStruct.Player
 
-	json.NewDecoder(r.Body).Decode(&playerDTO)
+	json.Unmarshal(req, &playerDTO)
+
+	player, err := h.playerService.Update(id, playerDTO)
+
 	if err != nil {
-		fmt.Println(err)
+		w.WriteHeader(http.StatusNotAcceptable)
+		w.Write([]byte(err.Error()))
+		return
+	} else {
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(player)
 	}
-
-	player := h.playerService.Update(id, playerDTO)
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(player)
 }
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
 func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
-	// Get ID from URL Param
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		fmt.Println(err)
-		return
+		logrus.New().Warn(err)
 	}
 
 	player := h.playerService.Delete(id)

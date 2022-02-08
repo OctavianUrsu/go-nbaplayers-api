@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 )
@@ -12,26 +11,17 @@ import (
 type Helpers struct{}
 
 func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
-	fmt.Println("running helper function")
-
-	// Open JSON file and if err => handle it
-	playersJson, err := os.Open(path)
+	// Read all players from the JSON fileDB
+	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Defer closing the file
-	defer playersJson.Close()
-
-	// Read the file as a byte array
-	byteValue, _ := ioutil.ReadAll(playersJson)
-
-	// Initialize the array that will store players
+	// Declare a variable to store all players
 	var allPlayers []playerStruct.Player
 
-	// Unmarshal the byteValue that contains our json info
-	// and store it in our array
-	json.Unmarshal(byteValue, &allPlayers)
+	// Unmarshal the JSON fileDB to allPlayers var
+	json.Unmarshal(file, &allPlayers)
 
 	return allPlayers
 }
