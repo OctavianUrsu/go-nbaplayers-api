@@ -1,8 +1,8 @@
 package handler
 
 import (
-	mw "github.com/OctavianUrsu/go-nbaplayers-api/internal/middleware"
-	"github.com/OctavianUrsu/go-nbaplayers-api/internal/service"
+	mw "github.com/OctavianUrsu/go-nbaplayers-api/pkg/middleware"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"

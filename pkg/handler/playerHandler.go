@@ -14,9 +14,15 @@ import (
 // Request Handler - GET /players - Get all players.
 func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
 	// Get all players
-	players := h.playerService.GetAll()
+	players, err := h.playerService.GetAll()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	// resp: Write all players as a JSON + write the http status
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(players)
 }
@@ -27,6 +33,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	req, err := io.ReadAll(r.Body)
 	if err != nil {
 		logrus.New().Warn(err)
+		return
 	}
 
 	// Create a Data Transfer Object from
@@ -41,11 +48,14 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(err.Error()))
-	} else {
-		// resp: In case of success, write the created player + the http status
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(newPlayer)
+		return
 	}
+
+	// resp: In case of success, write the created player + the http status
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newPlayer)
+
 }
 
 // Request Handler - GET /players/{id} - Get player by Id.
@@ -53,13 +63,20 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		logrus.New().Warn(err)
+		logrus.Warn(err)
+		return
 	}
 
 	// Get player by id
-	playerById := h.playerService.GetById(id)
+	playerById, err := h.playerService.GetById(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	// resp: Write the player + the http status
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(playerById)
 }
@@ -69,13 +86,15 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		logrus.New().Warn(err)
+		logrus.Warn(err)
+		return
 	}
 
 	// Read the request
 	req, err := io.ReadAll(r.Body)
 	if err != nil {
-		logrus.New().Warn(err)
+		logrus.Warn(err)
+		return
 	}
 
 	// Create a Data Transfer Object from
@@ -85,18 +104,18 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(req, &playerDTO)
 
 	// Update player
-	updatedPlayer, err := h.playerService.Update(id, playerDTO)
-
-	if err != nil {
+	if err := h.playerService.Update(id, playerDTO); err != nil {
 		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusNotAcceptable)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
-	} else {
-		// resp: In case of success, write the updated player + the http status
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(updatedPlayer)
 	}
+
+	// resp: In case of success, write the updated player + the http status
+	w.Header().Set("content-type", "application/text")
+	w.WriteHeader(http.StatusCreated)
+	io.WriteString(w, "player updated")
+
 }
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
@@ -108,9 +127,16 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete player
-	deletedPlayer := h.playerService.Delete(id)
+	if err := h.playerService.Delete(id); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
-	// resp: Write the deleted player + the http status
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(deletedPlayer)
+	// resp: In case of success, write the updated player + the http status
+	w.Header().Set("content-type", "application/text")
+	w.WriteHeader(http.StatusCreated)
+	io.WriteString(w, "player deleted")
+
 }

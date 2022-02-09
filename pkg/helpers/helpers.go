@@ -10,6 +10,11 @@ import (
 
 type Helpers struct{}
 
+// Constructor for dependency injection
+func NewHelper() *Helpers {
+	return &Helpers{}
+}
+
 func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
 	// Read all players from the JSON file
 	file, err := ioutil.ReadFile(path)
