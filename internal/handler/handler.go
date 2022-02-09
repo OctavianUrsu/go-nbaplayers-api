@@ -8,25 +8,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// class
 type Handler struct {
 	playerService *service.PlayerService
 }
 
+// Constructor for dependency injection
 func NewHandler(ps *service.PlayerService) *Handler {
 	return &Handler{ps}
 }
 
-// method
 func (h *Handler) InitRoutes() chi.Router {
+	// Create a new logger
 	logger := logrus.New()
 
+	// Create a new router
 	r := chi.NewRouter()
 
+	// Use logger middleware
 	r.Use(middleware.RequestID)
 	r.Use(mw.NewStructuredLogger(logger))
 	r.Use(middleware.Recoverer)
 
+	// Initialize API routes
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/players", func(r chi.Router) {
 			r.Get("/", h.getAllPlayers)       // Get all players

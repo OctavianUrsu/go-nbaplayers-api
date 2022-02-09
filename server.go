@@ -1,18 +1,17 @@
-package gonbaplayersapi
+package api
 
 import (
-	"context"
 	"net/http"
 	"time"
 )
 
-// class
 type Server struct {
 	httpServer *http.Server
 }
 
-// method
+// Run the server with specific config properties
 func (s *Server) Run(port string, handler http.Handler) error {
+	// Server config properties
 	s.httpServer = &http.Server{
 		Addr:           ":" + port,
 		Handler:        handler,
@@ -21,9 +20,6 @@ func (s *Server) Run(port string, handler http.Handler) error {
 		WriteTimeout:   10 * time.Second,
 	}
 
+	// Run the server
 	return s.httpServer.ListenAndServe()
-}
-
-func (s *Server) Shutdown(ctx context.Context) error {
-	return s.httpServer.Shutdown(ctx)
 }

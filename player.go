@@ -1,4 +1,4 @@
-package gonbaplayersapi
+package api
 
 type Player struct {
 	PlayerId  int    `json:"playerId"`

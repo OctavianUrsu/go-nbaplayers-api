@@ -11,7 +11,7 @@ import (
 type Helpers struct{}
 
 func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
-	// Read all players from the JSON fileDB
+	// Read all players from the JSON file
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err)
@@ -20,7 +20,7 @@ func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
 	// Declare a variable to store all players
 	var allPlayers []playerStruct.Player
 
-	// Unmarshal the JSON fileDB to allPlayers var
+	// Unmarshal the JSON file to allPlayers var
 	json.Unmarshal(file, &allPlayers)
 
 	return allPlayers

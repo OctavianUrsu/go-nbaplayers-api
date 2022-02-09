@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// LOGGER
 type StructuredLogger struct {
 	Logger *logrus.Logger
 }
