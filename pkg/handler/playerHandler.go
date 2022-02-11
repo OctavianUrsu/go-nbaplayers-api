@@ -59,10 +59,6 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id := chi.URLParam(r, "id")
-	if id == "" {
-		logrus.Warn("no id was found")
-		return
-	}
 
 	// Get player by id
 	playerById, err := h.playerService.GetById(id)
@@ -82,10 +78,6 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id := chi.URLParam(r, "id")
-	if id == "" {
-		logrus.Warn("no id was found")
-		return
-	}
 
 	// Read the request
 	req, err := io.ReadAll(r.Body)
@@ -118,10 +110,6 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id := chi.URLParam(r, "id")
-	if id == "" {
-		logrus.Warn("no id was found")
-		return
-	}
 
 	// Delete player
 	if err := h.playerService.Delete(id); err != nil {
