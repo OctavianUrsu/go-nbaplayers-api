@@ -72,7 +72,7 @@ func (pstrg *PlayerStorage) GetById(id string) (*playerStruct.Player, error) {
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
-	err := collection.FindOne(ctx, playerStruct.Player{PlayerId: objId}).Decode(&player)
+	err := collection.FindOne(ctx, bson.M{"_id": objId}).Decode(&player)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,11 @@ func (pstrg *PlayerStorage) Update(id string, playerDTO *playerStruct.Player) er
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
-	_, err := collection.UpdateOne(ctx, bson.M{"_id": objId}, updatePlayer)
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": objId}, updatePlayer)
+	if result.ModifiedCount == 0 {
+		return errors.New("could not find a user with this id")
+	}
+
 	if err != nil {
 		return err
 	}
