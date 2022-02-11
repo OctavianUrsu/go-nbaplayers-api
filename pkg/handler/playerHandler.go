@@ -43,8 +43,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(req, &playerDTO)
 
 	// Create player
-	newPlayer, err := h.playerService.Create(playerDTO)
-	if err != nil {
+	if err := h.playerService.Create(playerDTO); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(err.Error()))
@@ -54,8 +53,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	// resp: In case of success, write the created player + the http status
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newPlayer)
-
+	io.WriteString(w, "player created")
 }
 
 // Request Handler - GET /players/{id} - Get player by Id.
@@ -115,7 +113,6 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/text")
 	w.WriteHeader(http.StatusCreated)
 	io.WriteString(w, "player updated")
-
 }
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
@@ -138,5 +135,4 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/text")
 	w.WriteHeader(http.StatusCreated)
 	io.WriteString(w, "player deleted")
-
 }

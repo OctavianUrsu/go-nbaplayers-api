@@ -32,3 +32,6 @@ go.work
 bin/
 # or
 */bin/*
+
+#Ignore environment files
+*.env

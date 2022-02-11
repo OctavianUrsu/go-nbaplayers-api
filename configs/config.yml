@@ -1,6 +1,5 @@
 port: "8080"
 
 db:
-  uri: vault.bkm5p.mongodb.net
-  name: octavian
-  collection: nba
+  name: "octavian"
+  collection: "nba"
