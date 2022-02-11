@@ -43,7 +43,7 @@ func (ps *PlayerService) Create(playerDTO playerStruct.Player) error {
 }
 
 // Request Service - GET /players/{id} - Get player by Id.
-func (ps *PlayerService) GetById(id int) (*playerStruct.Player, error) {
+func (ps *PlayerService) GetById(id string) (*playerStruct.Player, error) {
 	player, err := ps.storage.GetById(id)
 	if err != nil {
 		return nil, err
@@ -53,9 +53,9 @@ func (ps *PlayerService) GetById(id int) (*playerStruct.Player, error) {
 }
 
 // Request Service - PUT /players/{id} - Update player by Id.
-func (ps *PlayerService) Update(id int, playerDTO playerStruct.Player) error {
+func (ps *PlayerService) Update(id string, playerDTO playerStruct.Player) error {
 	// Check if request has empty strings
-	if playerDTO.FirstName == "" && playerDTO.LastName == "" && playerDTO.PlayerId == 0 {
+	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
 		return errors.New("complete the required fields")
 	}
 
@@ -68,7 +68,7 @@ func (ps *PlayerService) Update(id int, playerDTO playerStruct.Player) error {
 }
 
 // Request Service - DELETE /players/{id} - Delete player by Id.
-func (ps *PlayerService) Delete(id int) error {
+func (ps *PlayerService) Delete(id string) error {
 	if err := ps.storage.Delete(id); err != nil {
 		return err
 	}

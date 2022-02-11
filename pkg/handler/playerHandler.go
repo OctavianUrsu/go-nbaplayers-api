@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"github.com/go-chi/chi/v5"
@@ -59,9 +58,9 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 // Request Handler - GET /players/{id} - Get player by Id.
 func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		logrus.Warn(err)
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		logrus.Warn("no id was found")
 		return
 	}
 
@@ -82,9 +81,9 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 // Request Handler - PUT /players/{id} - Update player by Id.
 func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		logrus.Warn(err)
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		logrus.Warn("no id was found")
 		return
 	}
 
@@ -118,9 +117,10 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 // Request Handler - DELETE /players/{id} - Delete player by Id.
 func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		logrus.New().Warn(err)
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		logrus.Warn("no id was found")
+		return
 	}
 
 	// Delete player

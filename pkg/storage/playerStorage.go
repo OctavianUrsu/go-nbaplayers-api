@@ -7,6 +7,7 @@ import (
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -61,7 +62,7 @@ func (pstrg *PlayerStorage) Create(playerDTO *playerStruct.Player) error {
 	return nil
 }
 
-func (pstrg *PlayerStorage) GetById(id int) (*playerStruct.Player, error) {
+func (pstrg *PlayerStorage) GetById(id string) (*playerStruct.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -69,7 +70,9 @@ func (pstrg *PlayerStorage) GetById(id int) (*playerStruct.Player, error) {
 
 	var player *playerStruct.Player
 
-	err := collection.FindOne(ctx, playerStruct.Player{PlayerId: id}).Decode(&player)
+	objId, _ := primitive.ObjectIDFromHex(id)
+
+	err := collection.FindOne(ctx, playerStruct.Player{PlayerId: objId}).Decode(&player)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +80,7 @@ func (pstrg *PlayerStorage) GetById(id int) (*playerStruct.Player, error) {
 	return player, nil
 }
 
-func (pstrg *PlayerStorage) Update(id int, playerDTO *playerStruct.Player) error {
+func (pstrg *PlayerStorage) Update(id string, playerDTO *playerStruct.Player) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -88,7 +91,9 @@ func (pstrg *PlayerStorage) Update(id int, playerDTO *playerStruct.Player) error
 		"$set": playerDTO,
 	}
 
-	_, err := collection.UpdateOne(ctx, bson.M{"_id": id}, updatePlayer)
+	objId, _ := primitive.ObjectIDFromHex(id)
+
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": objId}, updatePlayer)
 	if err != nil {
 		return err
 	}
@@ -96,13 +101,15 @@ func (pstrg *PlayerStorage) Update(id int, playerDTO *playerStruct.Player) error
 	return nil
 }
 
-func (pstrg *PlayerStorage) Delete(id int) error {
+func (pstrg *PlayerStorage) Delete(id string) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	objId, _ := primitive.ObjectIDFromHex(id)
+
+	result, err := collection.DeleteOne(ctx, bson.M{"_id": objId})
 	if result.DeletedCount == 0 {
 		return errors.New("could not find a user with this id")
 	}
