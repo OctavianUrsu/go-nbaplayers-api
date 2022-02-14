@@ -5,3 +5,5 @@ run: ## run the API server
 .PHONY: build
 build:  ## build the API server binary
 	go build -v ./cmd/main.go
+
+.DEFAULT_GOAL := run

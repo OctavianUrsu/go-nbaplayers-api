@@ -5,22 +5,22 @@ import (
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/helpers"
-	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/storage"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/store"
 )
 
 type PlayerService struct {
 	helpers *helpers.Helpers
-	storage *storage.Storage
+	store   *store.Store
 }
 
 // Constructor for dependency injection
-func NewService(h *helpers.Helpers, r *storage.Storage) *PlayerService {
+func NewService(h *helpers.Helpers, r *store.Store) *PlayerService {
 	return &PlayerService{h, r}
 }
 
 // Request Service - GET /players - Get all players.
 func (ps *PlayerService) GetAll() ([]*playerStruct.Player, error) {
-	allPlayers, err := ps.storage.GetAll()
+	allPlayers, err := ps.store.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (ps *PlayerService) Create(playerDTO playerStruct.Player) error {
 		return errors.New("complete the required fields")
 	}
 
-	if err := ps.storage.Create(&playerDTO); err != nil {
+	if err := ps.store.Create(&playerDTO); err != nil {
 		return err
 	}
 
@@ -44,7 +44,7 @@ func (ps *PlayerService) Create(playerDTO playerStruct.Player) error {
 
 // Request Service - GET /players/{id} - Get player by Id.
 func (ps *PlayerService) GetById(id string) (*playerStruct.Player, error) {
-	player, err := ps.storage.GetById(id)
+	player, err := ps.store.GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -59,17 +59,16 @@ func (ps *PlayerService) Update(id string, playerDTO playerStruct.Player) error 
 		return errors.New("complete the required fields")
 	}
 
-	if err := ps.storage.Update(id, &playerDTO); err != nil {
+	if err := ps.store.Update(id, &playerDTO); err != nil {
 		return err
 	}
 
 	return nil
-
 }
 
 // Request Service - DELETE /players/{id} - Delete player by Id.
 func (ps *PlayerService) Delete(id string) error {
-	if err := ps.storage.Delete(id); err != nil {
+	if err := ps.store.Delete(id); err != nil {
 		return err
 	}
 

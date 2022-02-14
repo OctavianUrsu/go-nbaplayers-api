@@ -8,7 +8,7 @@ import (
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/handler"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/helpers"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/service"
-	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/storage"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/store"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Initialize connection to MongoDB
-	db, err := storage.NewMongoDB(storage.Config{
+	db, err := store.NewMongoDB(store.Config{
 		URI:        os.Getenv("DB_URI"),
 		Name:       viper.GetString("db.name"),
 		Password:   os.Getenv("DB_PASSWORD"),
@@ -44,9 +44,9 @@ func main() {
 	}
 
 	// Initialize dependency injection
-	storage := storage.NewStorage(db)
+	store := store.NewStore(db)
 	helpers := new(helpers.Helpers)
-	services := service.NewService(helpers, storage)
+	services := service.NewService(helpers, store)
 	handlers := handler.NewHandler(services)
 
 	// Starting the HTTP server

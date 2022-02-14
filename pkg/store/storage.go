@@ -1,11 +1,11 @@
-package storage
+package store
 
 import (
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type IPlayerStorage interface {
+type IPlayerStore interface {
 	GetAll() ([]*playerStruct.Player, error)
 	Create(playerDTO *playerStruct.Player) error
 	GetById(id string) (*playerStruct.Player, error)
@@ -13,12 +13,12 @@ type IPlayerStorage interface {
 	Delete(id string) error
 }
 
-type Storage struct {
-	IPlayerStorage
+type Store struct {
+	IPlayerStore
 }
 
-func NewStorage(db *mongo.Database) *Storage {
-	return &Storage{
-		IPlayerStorage: NewPlayerStorage(db),
+func NewStore(db *mongo.Database) *Store {
+	return &Store{
+		IPlayerStore: NewPlayerStore(db),
 	}
 }

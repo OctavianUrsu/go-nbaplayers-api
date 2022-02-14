@@ -1,4 +1,4 @@
-package storage
+package store
 
 import (
 	"context"
@@ -11,15 +11,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type PlayerStorage struct {
+type PlayerStore struct {
 	db *mongo.Database
 }
 
-func NewPlayerStorage(db *mongo.Database) *PlayerStorage {
-	return &PlayerStorage{db: db}
+func NewPlayerStore(db *mongo.Database) *PlayerStore {
+	return &PlayerStore{db: db}
 }
 
-func (pstrg *PlayerStorage) GetAll() ([]*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetAll() ([]*playerStruct.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -46,7 +46,7 @@ func (pstrg *PlayerStorage) GetAll() ([]*playerStruct.Player, error) {
 	return allPlayers, nil
 }
 
-func (pstrg *PlayerStorage) Create(playerDTO *playerStruct.Player) error {
+func (pstrg *PlayerStore) Create(playerDTO *playerStruct.Player) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -62,7 +62,7 @@ func (pstrg *PlayerStorage) Create(playerDTO *playerStruct.Player) error {
 	return nil
 }
 
-func (pstrg *PlayerStorage) GetById(id string) (*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetById(id string) (*playerStruct.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -80,7 +80,7 @@ func (pstrg *PlayerStorage) GetById(id string) (*playerStruct.Player, error) {
 	return player, nil
 }
 
-func (pstrg *PlayerStorage) Update(id string, playerDTO *playerStruct.Player) error {
+func (pstrg *PlayerStore) Update(id string, playerDTO *playerStruct.Player) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -105,7 +105,7 @@ func (pstrg *PlayerStorage) Update(id string, playerDTO *playerStruct.Player) er
 	return nil
 }
 
-func (pstrg *PlayerStorage) Delete(id string) error {
+func (pstrg *PlayerStore) Delete(id string) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
