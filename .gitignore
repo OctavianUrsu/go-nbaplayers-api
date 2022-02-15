@@ -35,3 +35,6 @@ bin/
 
 #Ignore environment files
 *.env
+
+#Unignore Docker
+!Dockerfile
