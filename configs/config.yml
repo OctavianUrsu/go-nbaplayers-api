@@ -1,5 +1,3 @@
-port: "8080"
-
 db:
   name: "octavian"
   collection: "nba"

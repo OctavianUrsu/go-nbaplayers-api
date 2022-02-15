@@ -22,7 +22,7 @@ func main() {
 		logrus.Fatalf("Error initializing configs: %s", err.Error())
 	}
 
-	var port string = viper.GetString("port")
+	port := os.Getenv("PORT")
 
 	// Loading env variables
 	logrus.Infoln("Loading env variables...")
