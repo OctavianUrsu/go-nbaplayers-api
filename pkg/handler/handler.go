@@ -41,12 +41,16 @@ func (h *Handler) InitRoutes() chi.Router {
 	// Initialize API routes
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/players", func(r chi.Router) {
-			r.Get("/", h.getAllPlayers)       // Get all players
-			r.Post("/", h.createPlayer)       // Add new player
+			r.Get("/", h.getAllPlayers) // Get all players
+			r.Post("/", h.createPlayer) // Add new player
+
+			// Use ID
 			r.Get("/{id}", h.getPlayerById)   // Get player by id
 			r.Put("/{id}", h.updatePlayer)    // Update player by id
 			r.Delete("/{id}", h.deletePlayer) // Delete player by id
 
+			// Search for name
+			r.Get("/name={name}", h.getPlayerByName) // Get player by name
 		})
 	})
 

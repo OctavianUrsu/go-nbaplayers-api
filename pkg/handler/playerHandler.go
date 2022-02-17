@@ -108,7 +108,7 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
 func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
-	// Get id from URL params and convert it to integer
+	// Get id from URL params
 	id := chi.URLParam(r, "id")
 
 	// Delete player
@@ -123,4 +123,23 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/text")
 	w.WriteHeader(http.StatusCreated)
 	io.WriteString(w, "player deleted")
+}
+
+// Request Handler - GET /players//?name={name} - Get player by name.
+func (h *Handler) getPlayerByName(w http.ResponseWriter, r *http.Request) {
+	// Get name from URL params
+	nameParam := chi.URLParam(r, "name")
+
+	// Get player by name
+	foundPlayers, err := h.playerService.GetByName(nameParam)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// resp: Write all players as a JSON + write the http status
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(foundPlayers)
 }

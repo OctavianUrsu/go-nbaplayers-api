@@ -74,3 +74,13 @@ func (ps *PlayerService) Delete(id string) error {
 
 	return nil
 }
+
+// Request Service - GET /players//?name={name} - Get player by name.
+func (ps *PlayerService) GetByName(nameParam string) ([]*playerStruct.Player, error) {
+	foundPlayers, err := ps.store.GetByName(nameParam)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundPlayers, nil
+}

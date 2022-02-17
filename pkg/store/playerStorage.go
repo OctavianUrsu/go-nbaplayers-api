@@ -124,3 +124,41 @@ func (pstrg *PlayerStore) Delete(id string) error {
 
 	return nil
 }
+
+func (pstrg *PlayerStore) GetByName(nameParam string) ([]*playerStruct.Player, error) {
+	collection := pstrg.db.Collection("players")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := bson.M{
+		"$or": []bson.M{
+			{"firstName": bson.M{"$regex": nameParam, "$options": "i"}},
+			{"lastName": bson.M{"$regex": nameParam, "$options": "i"}},
+		}}
+
+	cursor, err := collection.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var foundPlayers []*playerStruct.Player
+
+	for cursor.Next(ctx) {
+		player := &playerStruct.Player{}
+		err := cursor.Decode(player)
+		if err != nil {
+			return nil, err
+		}
+
+		foundPlayers = append(foundPlayers, player)
+	}
+
+	if foundPlayers == nil {
+		foundPlayers = make([]*playerStruct.Player, 0)
+		return foundPlayers, nil
+	}
+
+	return foundPlayers, nil
+}
