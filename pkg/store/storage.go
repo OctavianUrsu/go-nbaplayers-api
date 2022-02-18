@@ -11,7 +11,7 @@ type IPlayerStore interface {
 	GetById(id string) (*playerStruct.Player, error)
 	Update(id string, playerDTO *playerStruct.Player) error
 	Delete(id string) error
-	GetByName(name string) ([]*playerStruct.Player, error)
+	GetByName(name []string) ([]*playerStruct.Player, error)
 }
 
 type Store struct {

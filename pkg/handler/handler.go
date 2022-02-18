@@ -50,7 +50,7 @@ func (h *Handler) InitRoutes() chi.Router {
 			r.Delete("/{id}", h.deletePlayer) // Delete player by id
 
 			// Search for name
-			r.Get("/name={name}", h.getPlayerByName) // Get player by name
+			r.Get("/search", h.getPlayerByName) // Get player by name
 		})
 	})
 

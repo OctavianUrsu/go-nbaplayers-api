@@ -9,6 +9,7 @@ import (
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/helpers"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/service"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/store"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -21,15 +22,15 @@ func main() {
 		logrus.Fatalf("Error initializing configs: %s", err.Error())
 	}
 
-	port := os.Getenv("PORT")
-
 	// Loading env variables
-	// logrus.Infoln("Loading env variables...")
-	// err := godotenv.Load(".env")
+	logrus.Infoln("Loading env variables...")
+	err := godotenv.Load(".env")
 
-	// if err != nil {
-	// 	logrus.Fatal("Error loading .env file")
-	// }
+	if err != nil {
+		logrus.Fatal("Error loading .env file")
+	}
+
+	port := os.Getenv("PORT")
 
 	// Initialize connection to MongoDB
 	db, err := store.NewMongoDB(store.Config{

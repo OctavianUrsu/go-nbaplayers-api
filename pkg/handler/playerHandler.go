@@ -125,13 +125,14 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "player deleted")
 }
 
-// Request Handler - GET /players//?name={name} - Get player by name.
+// Request Handler - GET /players/?name={name} - Get player by name.
 func (h *Handler) getPlayerByName(w http.ResponseWriter, r *http.Request) {
-	// Get name from URL params
-	nameParam := chi.URLParam(r, "name")
+	// Get query params from url
+	param := r.URL.Query()
+	searchParam := param.Get("name")
 
 	// Get player by name
-	foundPlayers, err := h.playerService.GetByName(nameParam)
+	foundPlayers, err := h.playerService.GetByName(searchParam)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

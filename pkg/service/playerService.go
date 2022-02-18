@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
 	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/helpers"
@@ -76,8 +77,10 @@ func (ps *PlayerService) Delete(id string) error {
 }
 
 // Request Service - GET /players//?name={name} - Get player by name.
-func (ps *PlayerService) GetByName(nameParam string) ([]*playerStruct.Player, error) {
-	foundPlayers, err := ps.store.GetByName(nameParam)
+func (ps *PlayerService) GetByName(searchParam string) ([]*playerStruct.Player, error) {
+	searchParams := strings.Split(searchParam, " ")
+
+	foundPlayers, err := ps.store.GetByName(searchParams)
 	if err != nil {
 		return nil, err
 	}

@@ -125,7 +125,7 @@ func (pstrg *PlayerStore) Delete(id string) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) GetByName(nameParam string) ([]*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*playerStruct.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -133,9 +133,24 @@ func (pstrg *PlayerStore) GetByName(nameParam string) ([]*playerStruct.Player, e
 
 	query := bson.M{
 		"$or": []bson.M{
-			{"firstName": bson.M{"$regex": nameParam, "$options": "i"}},
-			{"lastName": bson.M{"$regex": nameParam, "$options": "i"}},
+			{"firstName": bson.M{"$regex": searchParams[0], "$options": "i"}},
+			{"lastName": bson.M{"$regex": searchParams[0], "$options": "i"}},
 		}}
+
+	if len(searchParams) > 1 {
+		query = bson.M{
+			"$or": []bson.M{
+				{"$and": []bson.M{
+					{"firstName": bson.M{"$regex": searchParams[0], "$options": "i"}},
+					{"lastName": bson.M{"$regex": searchParams[1], "$options": "i"}},
+				}},
+				{"$and": []bson.M{
+					{"firstName": bson.M{"$regex": searchParams[1], "$options": "i"}},
+					{"lastName": bson.M{"$regex": searchParams[0], "$options": "i"}},
+				}},
+			},
+		}
+	}
 
 	cursor, err := collection.Find(ctx, query)
 	if err != nil {
