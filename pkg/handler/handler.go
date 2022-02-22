@@ -10,12 +10,12 @@ import (
 )
 
 type Handler struct {
-	playerService *service.PlayerService
+	service *service.Service
 }
 
 // Constructor for dependency injection
-func NewHandler(ps *service.PlayerService) *Handler {
-	return &Handler{ps}
+func NewHandler(s *service.Service) *Handler {
+	return &Handler{s}
 }
 
 func (h *Handler) InitRoutes() chi.Router {
@@ -51,6 +51,16 @@ func (h *Handler) InitRoutes() chi.Router {
 
 			// Search for name
 			r.Get("/search", h.getPlayerByName) // Get player by name
+		})
+
+		r.Route("/teams", func(r chi.Router) {
+			r.Get("/", h.getAllTeams) // Get all teams
+			r.Post("/", h.createTeam) // Add new team
+
+			// Use ID
+			r.Get("/{id}", h.getTeamById)   // Get team by id
+			r.Put("/{id}", h.updateTeam)    // Update team by id
+			r.Delete("/{id}", h.deleteTeam) // Delete team by id
 		})
 	})
 
