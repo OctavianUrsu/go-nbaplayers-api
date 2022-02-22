@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
+	structure "github.com/OctavianUrsu/go-nbaplayers-api"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,22 +19,22 @@ func NewPlayerStore(db *mongo.Database) *PlayerStore {
 	return &PlayerStore{db: db}
 }
 
-func (pstrg *PlayerStore) GetAll() ([]*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetAll() ([]*structure.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, playerStruct.Player{})
+	cursor, err := collection.Find(ctx, structure.Player{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var allPlayers []*playerStruct.Player
+	var allPlayers []*structure.Player
 
 	for cursor.Next(ctx) {
-		player := &playerStruct.Player{}
+		player := &structure.Player{}
 		err := cursor.Decode(player)
 		if err != nil {
 			return nil, err
@@ -46,13 +46,13 @@ func (pstrg *PlayerStore) GetAll() ([]*playerStruct.Player, error) {
 	return allPlayers, nil
 }
 
-func (pstrg *PlayerStore) Create(playerDTO *playerStruct.Player) error {
+func (pstrg *PlayerStore) Create(playerDTO *structure.Player) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var newPlayer *playerStruct.Player = playerDTO
+	var newPlayer *structure.Player = playerDTO
 
 	_, err := collection.InsertOne(ctx, newPlayer)
 	if err != nil {
@@ -62,13 +62,13 @@ func (pstrg *PlayerStore) Create(playerDTO *playerStruct.Player) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) GetById(id string) (*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetById(id string) (*structure.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var player *playerStruct.Player
+	var player *structure.Player
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
@@ -80,7 +80,7 @@ func (pstrg *PlayerStore) GetById(id string) (*playerStruct.Player, error) {
 	return player, nil
 }
 
-func (pstrg *PlayerStore) Update(id string, playerDTO *playerStruct.Player) error {
+func (pstrg *PlayerStore) Update(id string, playerDTO *structure.Player) error {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -125,7 +125,7 @@ func (pstrg *PlayerStore) Delete(id string) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*playerStruct.Player, error) {
+func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*structure.Player, error) {
 	collection := pstrg.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -158,10 +158,10 @@ func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*playerStruct.Play
 	}
 	defer cursor.Close(ctx)
 
-	var foundPlayers []*playerStruct.Player
+	var foundPlayers []*structure.Player
 
 	for cursor.Next(ctx) {
-		player := &playerStruct.Player{}
+		player := &structure.Player{}
 		err := cursor.Decode(player)
 		if err != nil {
 			return nil, err
@@ -171,7 +171,7 @@ func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*playerStruct.Play
 	}
 
 	if foundPlayers == nil {
-		foundPlayers = make([]*playerStruct.Player, 0)
+		foundPlayers = make([]*structure.Player, 0)
 		return foundPlayers, nil
 	}
 
