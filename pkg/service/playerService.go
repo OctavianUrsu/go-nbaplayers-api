@@ -2,25 +2,14 @@ package service
 
 import (
 	"errors"
+	"strings"
 
-	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
-	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/helpers"
-	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/store"
+	structure "github.com/OctavianUrsu/go-nbaplayers-api"
 )
 
-type PlayerService struct {
-	helpers *helpers.Helpers
-	store   *store.Store
-}
-
-// Constructor for dependency injection
-func NewService(h *helpers.Helpers, r *store.Store) *PlayerService {
-	return &PlayerService{h, r}
-}
-
 // Request Service - GET /players - Get all players.
-func (ps *PlayerService) GetAll() ([]*playerStruct.Player, error) {
-	allPlayers, err := ps.store.GetAll()
+func (s *Service) GetAll() ([]*structure.Player, error) {
+	allPlayers, err := s.store.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -29,13 +18,13 @@ func (ps *PlayerService) GetAll() ([]*playerStruct.Player, error) {
 }
 
 // Request Service - POST /players - Add new player.
-func (ps *PlayerService) Create(playerDTO playerStruct.Player) error {
+func (s *Service) Create(playerDTO structure.Player) error {
 	// Check if request has empty strings
 	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
 		return errors.New("complete the required fields")
 	}
 
-	if err := ps.store.Create(&playerDTO); err != nil {
+	if err := s.store.Create(&playerDTO); err != nil {
 		return err
 	}
 
@@ -43,8 +32,8 @@ func (ps *PlayerService) Create(playerDTO playerStruct.Player) error {
 }
 
 // Request Service - GET /players/{id} - Get player by Id.
-func (ps *PlayerService) GetById(id string) (*playerStruct.Player, error) {
-	player, err := ps.store.GetById(id)
+func (s *Service) GetById(id string) (*structure.Player, error) {
+	player, err := s.store.GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -53,13 +42,13 @@ func (ps *PlayerService) GetById(id string) (*playerStruct.Player, error) {
 }
 
 // Request Service - PUT /players/{id} - Update player by Id.
-func (ps *PlayerService) Update(id string, playerDTO playerStruct.Player) error {
+func (s *Service) Update(id string, playerDTO structure.Player) error {
 	// Check if request has empty strings
 	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
 		return errors.New("complete the required fields")
 	}
 
-	if err := ps.store.Update(id, &playerDTO); err != nil {
+	if err := s.store.Update(id, &playerDTO); err != nil {
 		return err
 	}
 
@@ -67,10 +56,22 @@ func (ps *PlayerService) Update(id string, playerDTO playerStruct.Player) error 
 }
 
 // Request Service - DELETE /players/{id} - Delete player by Id.
-func (ps *PlayerService) Delete(id string) error {
-	if err := ps.store.Delete(id); err != nil {
+func (s *Service) Delete(id string) error {
+	if err := s.store.Delete(id); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Request Service - GET /players/?name={name} - Get player by name.
+func (s *Service) GetByName(searchParam string) ([]*structure.Player, error) {
+	searchParams := strings.Split(searchParam, " ")
+
+	foundPlayers, err := s.store.GetByName(searchParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundPlayers, nil
 }

@@ -10,24 +10,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Request Handler - GET /players - Get all players.
-func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
-	// Get all players
-	players, err := h.service.GetAll()
+// Request Handler - GET /teams - Get all teams.
+func (h *Handler) getAllTeams(w http.ResponseWriter, r *http.Request) {
+	// Get all teams
+	players, err := h.service.GetAllTeams()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	// resp: Write all players as a JSON + write the http status
+	// resp: Write all teams as a JSON + write the http status
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(players)
 }
 
-// Request Handler - POST /players - Add new player.
-func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
+// Request Handler - POST /teams - Add new player.
+func (h *Handler) createTeam(w http.ResponseWriter, r *http.Request) {
 	// Read the request
 	req, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -36,13 +36,13 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a Data Transfer Object from
-	var playerDTO structure.Player
+	var teamDTO structure.Team
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
+	json.Unmarshal(req, &teamDTO)
 
 	// Create player
-	if err := h.service.Create(playerDTO); err != nil {
+	if err := h.service.CreateTeam(teamDTO); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(err.Error()))
@@ -52,16 +52,16 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	// resp: In case of success, write the created player + the http status
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player created")
+	io.WriteString(w, "team created")
 }
 
-// Request Handler - GET /players/{id} - Get player by Id.
-func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
+// Request Handler - GET /team/{id} - Get team by Id.
+func (h *Handler) getTeamById(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id := chi.URLParam(r, "id")
 
-	// Get player by id
-	playerById, err := h.service.GetById(id)
+	// Get team by id
+	teamById, err := h.service.GetTeamById(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -71,11 +71,11 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 	// resp: Write the player + the http status
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(playerById)
+	json.NewEncoder(w).Encode(teamById)
 }
 
-// Request Handler - PUT /players/{id} - Update player by Id.
-func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
+// Request Handler - PUT /team/{id} - Update team by Id.
+func (h *Handler) updateTeam(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params and convert it to integer
 	id := chi.URLParam(r, "id")
 
@@ -87,13 +87,13 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a Data Transfer Object from
-	var playerDTO structure.Player
+	var teamDTO structure.Team
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
+	json.Unmarshal(req, &teamDTO)
 
 	// Update player
-	if err := h.service.Update(id, playerDTO); err != nil {
+	if err := h.service.UpdateTeam(id, teamDTO); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -103,16 +103,16 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	// resp: In case of success, write the updated player + the http status
 	w.Header().Set("content-type", "application/text")
 	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player updated")
+	io.WriteString(w, "team updated")
 }
 
-// Request Handler - DELETE /players/{id} - Delete player by Id.
-func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
+// Request Handler - DELETE /team/{id} - Delete team by Id.
+func (h *Handler) deleteTeam(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL params
 	id := chi.URLParam(r, "id")
 
-	// Delete player
-	if err := h.service.Delete(id); err != nil {
+	// Delete team
+	if err := h.service.DeleteTeam(id); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -122,25 +122,5 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	// resp: In case of success, write the updated player + the http status
 	w.Header().Set("content-type", "application/text")
 	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player deleted")
-}
-
-// Request Handler - GET /players/?name={name} - Get player by name.
-func (h *Handler) getPlayerByName(w http.ResponseWriter, r *http.Request) {
-	// Get query params from url
-	param := r.URL.Query()
-	searchParam := param.Get("name")
-
-	// Get player by name
-	foundPlayers, err := h.service.GetByName(searchParam)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	// resp: Write all players as a JSON + write the http status
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(foundPlayers)
+	io.WriteString(w, "team deleted")
 }

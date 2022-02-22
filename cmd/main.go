@@ -21,8 +21,6 @@ func main() {
 		logrus.Fatalf("Error initializing configs: %s", err.Error())
 	}
 
-	port := os.Getenv("PORT")
-
 	// Loading env variables
 	// logrus.Infoln("Loading env variables...")
 	// err := godotenv.Load(".env")
@@ -30,6 +28,8 @@ func main() {
 	// if err != nil {
 	// 	logrus.Fatal("Error loading .env file")
 	// }
+
+	port := os.Getenv("PORT")
 
 	// Initialize connection to MongoDB
 	db, err := store.NewMongoDB(store.Config{

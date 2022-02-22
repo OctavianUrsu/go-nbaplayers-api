@@ -5,6 +5,7 @@ go 1.17
 require github.com/go-chi/chi/v5 v5.0.7 // direct
 
 require (
+	github.com/go-chi/cors v1.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1
@@ -13,7 +14,6 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/go-chi/cors v1.2.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
