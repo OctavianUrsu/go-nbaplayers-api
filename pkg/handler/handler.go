@@ -62,6 +62,10 @@ func (h *Handler) InitRoutes() chi.Router {
 			r.Put("/{id}", h.updateTeam)    // Update team by id
 			r.Delete("/{id}", h.deleteTeam) // Delete team by id
 		})
+
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/signup", h.userSignup)
+		})
 	})
 
 	return r

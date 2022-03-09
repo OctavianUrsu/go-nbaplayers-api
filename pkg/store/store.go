@@ -22,14 +22,20 @@ type ITeamStore interface {
 	DeleteTeam(id string) error
 }
 
+type IUserStore interface {
+	Signup(userSignupDTO *structure.User) error
+}
+
 type Store struct {
 	IPlayerStore
 	ITeamStore
+	IUserStore
 }
 
 func NewStore(db *mongo.Database) *Store {
 	return &Store{
 		IPlayerStore: NewPlayerStore(db),
 		ITeamStore:   NewTeamStore(db),
+		IUserStore:   NewUserStore(db),
 	}
 }
