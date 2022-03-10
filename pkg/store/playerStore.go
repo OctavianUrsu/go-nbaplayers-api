@@ -94,8 +94,12 @@ func (ps *PlayerStore) UpdatePlayer(id string, playerDTO *structure.Player) erro
 	objId, _ := primitive.ObjectIDFromHex(id)
 
 	result, err := collection.UpdateOne(ctx, bson.M{"_id": objId}, updatePlayer)
+	if result.MatchedCount == 0 {
+		return errors.New("the player with this id was not found")
+	}
+
 	if result.ModifiedCount == 0 {
-		return errors.New("could not find a user with this id")
+		return errors.New("could not update the player")
 	}
 
 	if err != nil {

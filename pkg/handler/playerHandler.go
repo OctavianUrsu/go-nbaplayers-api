@@ -39,7 +39,12 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	var playerDTO structure.Player
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
+	if err := json.Unmarshal(req, &playerDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	// Validate the request input
 	validateErr := validate.Struct(playerDTO)
@@ -98,13 +103,10 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	var playerDTO structure.Player
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
-
-	// Validate the request input
-	validateErr := validate.Struct(playerDTO)
-	if validateErr != nil {
+	if err := json.Unmarshal(req, &playerDTO); err != nil {
+		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(validateErr.Error()))
+		w.Write([]byte(err.Error()))
 		return
 	}
 

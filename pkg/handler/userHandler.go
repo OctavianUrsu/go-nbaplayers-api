@@ -20,7 +20,12 @@ func (h *Handler) userSignup(w http.ResponseWriter, r *http.Request) {
 	// Store the user signup details in a Data Transfer Object
 	var userSignupDTO structure.User
 
-	json.Unmarshal(req, &userSignupDTO)
+	if err := json.Unmarshal(req, &userSignupDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	validateErr := validate.Struct(userSignupDTO)
 	if validateErr != nil {
