@@ -41,6 +41,14 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	// Populate the DTO with our request
 	json.Unmarshal(req, &playerDTO)
 
+	// Validate the request input
+	validateErr := validate.Struct(playerDTO)
+	if validateErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(validateErr.Error()))
+		return
+	}
+
 	// Create player
 	if err := h.service.CreatePlayer(playerDTO); err != nil {
 		// resp: In case of error, write the error + the http status
@@ -91,6 +99,14 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 
 	// Populate the DTO with our request
 	json.Unmarshal(req, &playerDTO)
+
+	// Validate the request input
+	validateErr := validate.Struct(playerDTO)
+	if validateErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(validateErr.Error()))
+		return
+	}
 
 	// Update player
 	if err := h.service.UpdatePlayer(id, playerDTO); err != nil {

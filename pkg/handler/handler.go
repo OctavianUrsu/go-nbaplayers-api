@@ -6,8 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
+
+var validate = validator.New()
 
 type Handler struct {
 	service *service.Service

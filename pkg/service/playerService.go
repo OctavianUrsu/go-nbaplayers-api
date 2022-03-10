@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"strings"
 
 	structure "github.com/OctavianUrsu/go-nbaplayers-api"
@@ -19,11 +18,6 @@ func (s *Service) GetAllPlayers() ([]*structure.Player, error) {
 
 // Request Service - POST /players - Add new player.
 func (s *Service) CreatePlayer(playerDTO structure.Player) error {
-	// Check if request has empty strings
-	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
-		return errors.New("complete the required fields")
-	}
-
 	if err := s.store.CreatePlayer(&playerDTO); err != nil {
 		return err
 	}
@@ -43,11 +37,6 @@ func (s *Service) GetPlayerById(id string) (*structure.Player, error) {
 
 // Request Service - PUT /players/{id} - Update player by Id.
 func (s *Service) UpdatePlayer(id string, playerDTO structure.Player) error {
-	// Check if request has empty strings
-	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
-		return errors.New("complete the required fields")
-	}
-
 	if err := s.store.UpdatePlayer(id, &playerDTO); err != nil {
 		return err
 	}

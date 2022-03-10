@@ -22,9 +22,16 @@ func (h *Handler) userSignup(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(req, &userSignupDTO)
 
+	validateErr := validate.Struct(userSignupDTO)
+	if validateErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(validateErr.Error()))
+		return
+	}
+
 	if err := h.service.SignUp(userSignupDTO); err != nil {
 		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusConflict)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
 	}
