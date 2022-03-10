@@ -8,8 +8,8 @@ import (
 )
 
 // Request Service - GET /players - Get all players.
-func (s *Service) GetAll() ([]*structure.Player, error) {
-	allPlayers, err := s.store.GetAll()
+func (s *Service) GetAllPlayers() ([]*structure.Player, error) {
+	allPlayers, err := s.store.GetAllPlayers()
 	if err != nil {
 		return nil, err
 	}
@@ -18,13 +18,13 @@ func (s *Service) GetAll() ([]*structure.Player, error) {
 }
 
 // Request Service - POST /players - Add new player.
-func (s *Service) Create(playerDTO structure.Player) error {
+func (s *Service) CreatePlayer(playerDTO structure.Player) error {
 	// Check if request has empty strings
 	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
 		return errors.New("complete the required fields")
 	}
 
-	if err := s.store.Create(&playerDTO); err != nil {
+	if err := s.store.CreatePlayer(&playerDTO); err != nil {
 		return err
 	}
 
@@ -32,8 +32,8 @@ func (s *Service) Create(playerDTO structure.Player) error {
 }
 
 // Request Service - GET /players/{id} - Get player by Id.
-func (s *Service) GetById(id string) (*structure.Player, error) {
-	player, err := s.store.GetById(id)
+func (s *Service) GetPlayerById(id string) (*structure.Player, error) {
+	player, err := s.store.GetPlayerById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -42,13 +42,13 @@ func (s *Service) GetById(id string) (*structure.Player, error) {
 }
 
 // Request Service - PUT /players/{id} - Update player by Id.
-func (s *Service) Update(id string, playerDTO structure.Player) error {
+func (s *Service) UpdatePlayer(id string, playerDTO structure.Player) error {
 	// Check if request has empty strings
 	if playerDTO.FirstName == "" && playerDTO.LastName == "" {
 		return errors.New("complete the required fields")
 	}
 
-	if err := s.store.Update(id, &playerDTO); err != nil {
+	if err := s.store.UpdatePlayer(id, &playerDTO); err != nil {
 		return err
 	}
 
@@ -56,8 +56,8 @@ func (s *Service) Update(id string, playerDTO structure.Player) error {
 }
 
 // Request Service - DELETE /players/{id} - Delete player by Id.
-func (s *Service) Delete(id string) error {
-	if err := s.store.Delete(id); err != nil {
+func (s *Service) DeletePlayer(id string) error {
+	if err := s.store.DeletePlayer(id); err != nil {
 		return err
 	}
 
@@ -65,10 +65,10 @@ func (s *Service) Delete(id string) error {
 }
 
 // Request Service - GET /players/?name={name} - Get player by name.
-func (s *Service) GetByName(searchParam string) ([]*structure.Player, error) {
+func (s *Service) GetPlayerByName(searchParam string) ([]*structure.Player, error) {
 	searchParams := strings.Split(searchParam, " ")
 
-	foundPlayers, err := s.store.GetByName(searchParams)
+	foundPlayers, err := s.store.GetPlayerByName(searchParams)
 	if err != nil {
 		return nil, err
 	}
