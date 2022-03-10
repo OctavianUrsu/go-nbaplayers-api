@@ -25,7 +25,7 @@ func (ts *TeamStore) GetAllTeams() ([]*structure.Team, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, structure.Team{})
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}

@@ -6,8 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
+
+var validate = validator.New()
 
 type Handler struct {
 	service *service.Service
@@ -61,6 +64,10 @@ func (h *Handler) InitRoutes() chi.Router {
 			r.Get("/{id}", h.getTeamById)   // Get team by id
 			r.Put("/{id}", h.updateTeam)    // Update team by id
 			r.Delete("/{id}", h.deleteTeam) // Delete team by id
+		})
+
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/signup", h.userSignup)
 		})
 	})
 

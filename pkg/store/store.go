@@ -6,12 +6,12 @@ import (
 )
 
 type IPlayerStore interface {
-	GetAll() ([]*structure.Player, error)
-	Create(playerDTO *structure.Player) error
-	GetById(id string) (*structure.Player, error)
-	Update(id string, playerDTO *structure.Player) error
-	Delete(id string) error
-	GetByName(name []string) ([]*structure.Player, error)
+	GetAllPlayers() ([]*structure.Player, error)
+	CreatePlayer(playerDTO *structure.Player) error
+	GetPlayerById(id string) (*structure.Player, error)
+	UpdatePlayer(id string, playerDTO *structure.Player) error
+	DeletePlayer(id string) error
+	GetPlayerByName(name []string) ([]*structure.Player, error)
 }
 
 type ITeamStore interface {
@@ -22,14 +22,20 @@ type ITeamStore interface {
 	DeleteTeam(id string) error
 }
 
+type IUserStore interface {
+	Signup(userSignupDTO *structure.User) error
+}
+
 type Store struct {
 	IPlayerStore
 	ITeamStore
+	IUserStore
 }
 
 func NewStore(db *mongo.Database) *Store {
 	return &Store{
 		IPlayerStore: NewPlayerStore(db),
 		ITeamStore:   NewTeamStore(db),
+		IUserStore:   NewUserStore(db),
 	}
 }

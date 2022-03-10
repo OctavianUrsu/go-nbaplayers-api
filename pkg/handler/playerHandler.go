@@ -13,7 +13,7 @@ import (
 // Request Handler - GET /players - Get all players.
 func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
 	// Get all players
-	players, err := h.service.GetAll()
+	players, err := h.service.GetAllPlayers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -39,10 +39,23 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 	var playerDTO structure.Player
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
+	if err := json.Unmarshal(req, &playerDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// Validate the request input
+	validateErr := validate.Struct(playerDTO)
+	if validateErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(validateErr.Error()))
+		return
+	}
 
 	// Create player
-	if err := h.service.Create(playerDTO); err != nil {
+	if err := h.service.CreatePlayer(playerDTO); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(err.Error()))
@@ -61,7 +74,7 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	// Get player by id
-	playerById, err := h.service.GetById(id)
+	playerById, err := h.service.GetPlayerById(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -90,10 +103,15 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 	var playerDTO structure.Player
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &playerDTO)
+	if err := json.Unmarshal(req, &playerDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	// Update player
-	if err := h.service.Update(id, playerDTO); err != nil {
+	if err := h.service.UpdatePlayer(id, playerDTO); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -112,7 +130,7 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	// Delete player
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.DeletePlayer(id); err != nil {
 		// resp: In case of error, write the error + the http status
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -132,7 +150,7 @@ func (h *Handler) getPlayerByName(w http.ResponseWriter, r *http.Request) {
 	searchParam := param.Get("name")
 
 	// Get player by name
-	foundPlayers, err := h.service.GetByName(searchParam)
+	foundPlayers, err := h.service.GetPlayerByName(searchParam)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

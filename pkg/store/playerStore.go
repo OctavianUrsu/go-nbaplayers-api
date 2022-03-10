@@ -19,13 +19,13 @@ func NewPlayerStore(db *mongo.Database) *PlayerStore {
 	return &PlayerStore{db: db}
 }
 
-func (pstrg *PlayerStore) GetAll() ([]*structure.Player, error) {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) GetAllPlayers() ([]*structure.Player, error) {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, structure.Player{})
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (pstrg *PlayerStore) GetAll() ([]*structure.Player, error) {
 	return allPlayers, nil
 }
 
-func (pstrg *PlayerStore) Create(playerDTO *structure.Player) error {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) CreatePlayer(playerDTO *structure.Player) error {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -62,8 +62,8 @@ func (pstrg *PlayerStore) Create(playerDTO *structure.Player) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) GetById(id string) (*structure.Player, error) {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) GetPlayerById(id string) (*structure.Player, error) {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -80,8 +80,8 @@ func (pstrg *PlayerStore) GetById(id string) (*structure.Player, error) {
 	return player, nil
 }
 
-func (pstrg *PlayerStore) Update(id string, playerDTO *structure.Player) error {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) UpdatePlayer(id string, playerDTO *structure.Player) error {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -94,8 +94,12 @@ func (pstrg *PlayerStore) Update(id string, playerDTO *structure.Player) error {
 	objId, _ := primitive.ObjectIDFromHex(id)
 
 	result, err := collection.UpdateOne(ctx, bson.M{"_id": objId}, updatePlayer)
+	if result.MatchedCount == 0 {
+		return errors.New("the player with this id was not found")
+	}
+
 	if result.ModifiedCount == 0 {
-		return errors.New("could not find a user with this id")
+		return errors.New("could not update the player")
 	}
 
 	if err != nil {
@@ -105,8 +109,8 @@ func (pstrg *PlayerStore) Update(id string, playerDTO *structure.Player) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) Delete(id string) error {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) DeletePlayer(id string) error {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -125,8 +129,8 @@ func (pstrg *PlayerStore) Delete(id string) error {
 	return nil
 }
 
-func (pstrg *PlayerStore) GetByName(searchParams []string) ([]*structure.Player, error) {
-	collection := pstrg.db.Collection("players")
+func (ps *PlayerStore) GetPlayerByName(searchParams []string) ([]*structure.Player, error) {
+	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

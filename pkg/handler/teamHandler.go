@@ -39,7 +39,20 @@ func (h *Handler) createTeam(w http.ResponseWriter, r *http.Request) {
 	var teamDTO structure.Team
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &teamDTO)
+	if err := json.Unmarshal(req, &teamDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// Validate the request input
+	validateErr := validate.Struct(teamDTO)
+	if validateErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(validateErr.Error()))
+		return
+	}
 
 	// Create player
 	if err := h.service.CreateTeam(teamDTO); err != nil {
@@ -90,7 +103,12 @@ func (h *Handler) updateTeam(w http.ResponseWriter, r *http.Request) {
 	var teamDTO structure.Team
 
 	// Populate the DTO with our request
-	json.Unmarshal(req, &teamDTO)
+	if err := json.Unmarshal(req, &teamDTO); err != nil {
+		// resp: In case of error, write the error + the http status
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	// Update player
 	if err := h.service.UpdateTeam(id, teamDTO); err != nil {
