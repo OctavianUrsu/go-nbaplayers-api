@@ -69,3 +69,26 @@ func (us *UserStore) FindUserByNickname(userSigninNickname string) (*structure.U
 
 	return foundUser, nil
 }
+
+func (us *UserStore) FindUserByTokenClaims(claims *structure.SignedClaims) (*bool, error) {
+	collection := us.db.Collection("users")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var isAuthorized bool = false
+
+	query := bson.M{
+		"$and": []bson.M{
+			{"nickname": claims.Nickname},
+			{"password": claims.Password},
+		}}
+
+	if err := collection.FindOne(ctx, query); err != nil {
+		isAuthorized = true
+	} else {
+		return &isAuthorized, nil
+	}
+
+	return &isAuthorized, nil
+}

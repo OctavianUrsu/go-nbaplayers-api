@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,4 +18,10 @@ type User struct {
 type UserSignin struct {
 	Nickname string `json:"nickname"`
 	Password string `json:"password"`
+}
+
+type SignedClaims struct {
+	Nickname string
+	Password string
+	jwt.StandardClaims
 }
