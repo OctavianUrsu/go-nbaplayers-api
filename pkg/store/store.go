@@ -25,6 +25,7 @@ type ITeamStore interface {
 type IUserStore interface {
 	Signup(userSignupDTO *structure.User) error
 	FindUserByNickname(userSigninNickname string) (*structure.UserSignin, error)
+	FindUserByTokenClaims(claims *structure.SignedClaims) (*bool, error)
 }
 
 type Store struct {

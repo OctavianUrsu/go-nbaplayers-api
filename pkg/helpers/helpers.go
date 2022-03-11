@@ -7,25 +7,20 @@ import (
 	"os"
 	"time"
 
-	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
+	structure "github.com/OctavianUrsu/go-nbaplayers-api"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Helpers struct{}
-type SignedClaims struct {
-	Nickname string
-	Password string
-	jwt.StandardClaims
-}
 
 // Constructor for dependency injection
 func NewHelper() *Helpers {
 	return &Helpers{}
 }
 
-func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
+func (h *Helpers) UnmarshalPlayersJson(path string) []structure.Player {
 	// Read all players from the JSON file
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -33,7 +28,7 @@ func (h *Helpers) UnmarshalPlayersJson(path string) []playerStruct.Player {
 	}
 
 	// Declare a variable to store all players
-	var allPlayers []playerStruct.Player
+	var allPlayers []structure.Player
 
 	// Unmarshal the JSON file to allPlayers var
 	json.Unmarshal(file, &allPlayers)
@@ -69,7 +64,7 @@ func (h *Helpers) GenerateToken(nickname string, password string) (*string, erro
 
 	var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
-	claims := &SignedClaims{
+	claims := &structure.SignedClaims{
 		Nickname: nickname,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{

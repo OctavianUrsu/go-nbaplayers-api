@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func (s *Service) SignUp(userSignupDTO structure.User) (*string, error) {
@@ -51,4 +53,31 @@ func (s *Service) SignIn(userSigninDTO structure.UserSignin) (*string, error) {
 	} else {
 		return nil, errors.New("incorrect password")
 	}
+}
+
+func (s *Service) VerifyToken(tokenString string) (*bool, error) {
+	// err := godotenv.Load(".env")
+
+	// if err != nil {
+	// 	logrus.Fatal("Error loading .env file")
+	// }
+
+	var SECRET_KEY string = os.Getenv("SECRET_KEY")
+
+	claims := &structure.SignedClaims{}
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	userExists, err := s.store.FindUserByTokenClaims(claims)
+
+	if err != nil {
+		return userExists, err
+	}
+
+	return userExists, nil
 }

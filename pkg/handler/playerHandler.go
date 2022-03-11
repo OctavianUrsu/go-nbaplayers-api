@@ -28,44 +28,57 @@ func (h *Handler) getAllPlayers(w http.ResponseWriter, r *http.Request) {
 
 // Request Handler - POST /players - Add new player.
 func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
-	// Read the request
-	req, err := io.ReadAll(r.Body)
+	// Obtain the session token from the requests cookies
+	c := getTokenFromCookie(w, r)
+
+	isAuthorized, err := h.service.VerifyToken(c.Value)
 	if err != nil {
-		logrus.New().Warn(err)
-		return
-	}
-
-	// Create a Data Transfer Object from
-	var playerDTO structure.Player
-
-	// Populate the DTO with our request
-	if err := json.Unmarshal(req, &playerDTO); err != nil {
-		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	// Validate the request input
-	validateErr := validate.Struct(playerDTO)
-	if validateErr != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(validateErr.Error()))
-		return
+	if *isAuthorized {
+		// Read the request
+		req, err := io.ReadAll(r.Body)
+		if err != nil {
+			logrus.New().Warn(err)
+			return
+		}
+
+		// Create a Data Transfer Object from
+		var playerDTO structure.Player
+
+		// Populate the DTO with our request
+		if err := json.Unmarshal(req, &playerDTO); err != nil {
+			// resp: In case of error, write the error + the http status
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		// Validate the request input
+		validateErr := validate.Struct(playerDTO)
+		if validateErr != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(validateErr.Error()))
+			return
+		}
+
+		// Create player
+		if err := h.service.CreatePlayer(playerDTO); err != nil {
+			// resp: In case of error, write the error + the http status
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		// resp: In case of success, write the created player + the http status
+		w.Header().Set("content-type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		io.WriteString(w, "player created")
 	}
 
-	// Create player
-	if err := h.service.CreatePlayer(playerDTO); err != nil {
-		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	// resp: In case of success, write the created player + the http status
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player created")
 }
 
 // Request Handler - GET /players/{id} - Get player by Id.
@@ -89,58 +102,82 @@ func (h *Handler) getPlayerById(w http.ResponseWriter, r *http.Request) {
 
 // Request Handler - PUT /players/{id} - Update player by Id.
 func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
-	// Get id from URL params and convert it to integer
-	id := chi.URLParam(r, "id")
+	// Obtain the session token from the requests cookies
+	c := getTokenFromCookie(w, r)
 
-	// Read the request
-	req, err := io.ReadAll(r.Body)
+	isAuthorized, err := h.service.VerifyToken(c.Value)
 	if err != nil {
-		logrus.Warn(err)
-		return
-	}
-
-	// Create a Data Transfer Object from
-	var playerDTO structure.Player
-
-	// Populate the DTO with our request
-	if err := json.Unmarshal(req, &playerDTO); err != nil {
-		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	// Update player
-	if err := h.service.UpdatePlayer(id, playerDTO); err != nil {
-		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	if *isAuthorized {
+		// Get id from URL params and convert it to integer
+		id := chi.URLParam(r, "id")
 
-	// resp: In case of success, write the updated player + the http status
-	w.Header().Set("content-type", "application/text")
-	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player updated")
+		// Read the request
+		req, err := io.ReadAll(r.Body)
+		if err != nil {
+			logrus.Warn(err)
+			return
+		}
+
+		// Create a Data Transfer Object from
+		var playerDTO structure.Player
+
+		// Populate the DTO with our request
+		if err := json.Unmarshal(req, &playerDTO); err != nil {
+			// resp: In case of error, write the error + the http status
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		// Update player
+		if err := h.service.UpdatePlayer(id, playerDTO); err != nil {
+			// resp: In case of error, write the error + the http status
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		// resp: In case of success, write the updated player + the http status
+		w.Header().Set("content-type", "application/text")
+		w.WriteHeader(http.StatusCreated)
+		io.WriteString(w, "player updated")
+	}
 }
 
 // Request Handler - DELETE /players/{id} - Delete player by Id.
 func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
-	// Get id from URL params
-	id := chi.URLParam(r, "id")
+	// Obtain the session token from the requests cookies
+	c := getTokenFromCookie(w, r)
 
-	// Delete player
-	if err := h.service.DeletePlayer(id); err != nil {
-		// resp: In case of error, write the error + the http status
-		w.WriteHeader(http.StatusInternalServerError)
+	isAuthorized, err := h.service.VerifyToken(c.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	// resp: In case of success, write the updated player + the http status
-	w.Header().Set("content-type", "application/text")
-	w.WriteHeader(http.StatusCreated)
-	io.WriteString(w, "player deleted")
+	if *isAuthorized {
+		// Get id from URL params
+		id := chi.URLParam(r, "id")
+
+		// Delete player
+		if err := h.service.DeletePlayer(id); err != nil {
+			// resp: In case of error, write the error + the http status
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		// resp: In case of success, write the updated player + the http status
+		w.Header().Set("content-type", "application/text")
+		w.WriteHeader(http.StatusCreated)
+		io.WriteString(w, "player deleted")
+	}
 }
 
 // Request Handler - GET /players/?name={name} - Get player by name.
