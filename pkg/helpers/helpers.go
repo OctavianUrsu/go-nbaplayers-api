@@ -4,13 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"time"
 
 	playerStruct "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Helpers struct{}
+type SignedClaims struct {
+	Nickname string
+	Password string
+	jwt.StandardClaims
+}
 
 // Constructor for dependency injection
 func NewHelper() *Helpers {
@@ -50,4 +58,29 @@ func (h *Helpers) VerifyPassword(userPassword string, providedPassword string) (
 	}
 
 	return true, nil
+}
+
+func (h *Helpers) GenerateToken(nickname string, password string) (*string, error) {
+	// err := godotenv.Load(".env")
+
+	// if err != nil {
+	// 	logrus.Fatal("Error loading .env file")
+	// }
+
+	var SECRET_KEY string = os.Getenv("SECRET_KEY")
+
+	claims := &SignedClaims{
+		Nickname: nickname,
+		Password: password,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+		},
+	}
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
+	if err != nil {
+		return nil, err
+	}
+
+	return &token, nil
 }

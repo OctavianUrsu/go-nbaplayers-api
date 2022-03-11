@@ -24,6 +24,7 @@ type ITeamStore interface {
 
 type IUserStore interface {
 	Signup(userSignupDTO *structure.User) error
+	FindUserByNickname(userSigninNickname string) (*structure.UserSignin, error)
 }
 
 type Store struct {

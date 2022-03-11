@@ -68,6 +68,7 @@ func (h *Handler) InitRoutes() chi.Router {
 
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/signup", h.userSignup)
+			r.Post("/signin", h.userSignin)
 		})
 	})
 
