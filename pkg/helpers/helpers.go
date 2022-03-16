@@ -7,8 +7,9 @@ import (
 	"os"
 	"time"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,7 +21,7 @@ func NewHelper() *Helpers {
 	return &Helpers{}
 }
 
-func (h *Helpers) UnmarshalPlayersJson(path string) []structure.Player {
+func (h *Helpers) UnmarshalPlayersJson(path string) []models.Player {
 	// Read all players from the JSON file
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -28,7 +29,7 @@ func (h *Helpers) UnmarshalPlayersJson(path string) []structure.Player {
 	}
 
 	// Declare a variable to store all players
-	var allPlayers []structure.Player
+	var allPlayers []models.Player
 
 	// Unmarshal the JSON file to allPlayers var
 	json.Unmarshal(file, &allPlayers)
@@ -45,26 +46,26 @@ func (h *Helpers) HashPassword(password string) string {
 	return string(bytes)
 }
 
-func (h *Helpers) VerifyPassword(userPassword string, providedPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(userPassword), []byte(providedPassword))
+func (h *Helpers) VerifyPassword(hashedPassword string, providedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(providedPassword))
 
 	if err != nil {
-		return false, err
+		return err == nil
 	}
 
-	return true, nil
+	return true
 }
 
-func (h *Helpers) GenerateToken(nickname string, password string) (*string, error) {
-	// err := godotenv.Load(".env")
+func (h *Helpers) GenerateToken(nickname string, password string) (string, error) {
+	err := godotenv.Load(".env")
 
-	// if err != nil {
-	// 	logrus.Fatal("Error loading .env file")
-	// }
+	if err != nil {
+		logrus.Fatal("Error loading .env file")
+	}
 
 	var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
-	claims := &structure.SignedClaims{
+	claims := &models.SignedClaims{
 		Nickname: nickname,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{
@@ -74,8 +75,8 @@ func (h *Helpers) GenerateToken(nickname string, password string) (*string, erro
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &token, nil
+	return token, nil
 }

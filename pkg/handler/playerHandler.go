@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -38,7 +38,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Read the request
 		req, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -47,7 +47,7 @@ func (h *Handler) createPlayer(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a Data Transfer Object from
-		var playerDTO structure.Player
+		var playerDTO models.Player
 
 		// Populate the DTO with our request
 		if err := json.Unmarshal(req, &playerDTO); err != nil {
@@ -112,7 +112,7 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Get id from URL params and convert it to integer
 		id := chi.URLParam(r, "id")
 
@@ -124,7 +124,7 @@ func (h *Handler) updatePlayer(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a Data Transfer Object from
-		var playerDTO structure.Player
+		var playerDTO models.Player
 
 		// Populate the DTO with our request
 		if err := json.Unmarshal(req, &playerDTO); err != nil {
@@ -161,7 +161,7 @@ func (h *Handler) deletePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Get id from URL params
 		id := chi.URLParam(r, "id")
 

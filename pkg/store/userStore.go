@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -18,35 +18,15 @@ func NewUserStore(db *mongo.Database) *UserStore {
 	return &UserStore{db: db}
 }
 
-func (us *UserStore) Signup(userSignupDTO *structure.User) error {
+func (us *UserStore) Signup(userSignupDTO *models.User) error {
 	collection := us.db.Collection("users")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var newUser *structure.User = userSignupDTO
+	var newUser *models.User = userSignupDTO
 
-	count, err := collection.CountDocuments(ctx, bson.M{"email": newUser.Email})
-	defer cancel()
-	if err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return errors.New("this email already exists")
-	}
-
-	count, err = collection.CountDocuments(ctx, bson.M{"nickname": newUser.Nickname})
-	defer cancel()
-	if err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return errors.New("this nickname already exists")
-	}
-
-	_, err = collection.InsertOne(ctx, newUser)
+	_, err := collection.InsertOne(ctx, newUser)
 	if err != nil {
 		return err
 	}
@@ -54,41 +34,75 @@ func (us *UserStore) Signup(userSignupDTO *structure.User) error {
 	return nil
 }
 
-func (us *UserStore) FindUserByNickname(userSigninNickname string) (*structure.UserSignin, error) {
+func (us *UserStore) NicknameExists(user *models.User) bool {
 	collection := us.db.Collection("users")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var foundUser *structure.UserSignin
+	count, err := collection.CountDocuments(ctx, bson.M{"nickname": user.Nickname})
+	if err != nil {
+		panic(err)
+	}
+	if count >= 1 {
+		return true
+	}
+
+	return false
+}
+
+func (us *UserStore) EmailExists(user *models.User) bool {
+	collection := us.db.Collection("users")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	count, err := collection.CountDocuments(ctx, bson.M{"email": user.Email})
+	if err != nil {
+		panic(err)
+	}
+	if count >= 1 {
+		return true
+	}
+
+	return false
+}
+
+func (us *UserStore) GetHashedPassword(userSigninNickname string) (string, error) {
+	collection := us.db.Collection("users")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var foundUser *models.UserSignin
 
 	err := collection.FindOne(ctx, bson.M{"nickname": userSigninNickname}).Decode(&foundUser)
 	if err != nil {
-		return nil, errors.New("could not find a user with this nickname")
+		return "", errors.New("could not find a user with this nickname")
 	}
 
-	return foundUser, nil
+	return foundUser.Password, nil
 }
 
-func (us *UserStore) FindUserByTokenClaims(claims *structure.SignedClaims) (*bool, error) {
-	collection := us.db.Collection("users")
+// func (us *UserStore) FindUserByTokenClaims(claims *models.SignedClaims) (*bool, error) {
+// 	collection := us.db.Collection("users")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
 
-	var isAuthorized bool = false
+// 	var isAuthorized bool = false
 
-	query := bson.M{
-		"$and": []bson.M{
-			{"nickname": claims.Nickname},
-			{"password": claims.Password},
-		}}
+// 	query := bson.M{
+// 		"$and": []bson.M{
+// 			{"nickname": claims.Nickname},
+// 			{"password": claims.Password},
+// 		}}
 
-	if err := collection.FindOne(ctx, query); err != nil {
-		isAuthorized = true
-	} else {
-		return &isAuthorized, nil
-	}
+// 	if err := collection.FindOne(ctx, query); err != nil {
+// 		isAuthorized = true
+// 	} else {
+// 		return &isAuthorized, nil
+// 	}
 
-	return &isAuthorized, nil
-}
+// 	return &isAuthorized, nil
+// }

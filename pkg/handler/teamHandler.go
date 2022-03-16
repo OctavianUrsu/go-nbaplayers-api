@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -38,7 +38,7 @@ func (h *Handler) createTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Read the request
 		req, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -47,7 +47,7 @@ func (h *Handler) createTeam(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a Data Transfer Object from
-		var teamDTO structure.Team
+		var teamDTO models.Team
 
 		// Populate the DTO with our request
 		if err := json.Unmarshal(req, &teamDTO); err != nil {
@@ -111,7 +111,7 @@ func (h *Handler) updateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Get id from URL params and convert it to integer
 		id := chi.URLParam(r, "id")
 
@@ -123,7 +123,7 @@ func (h *Handler) updateTeam(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a Data Transfer Object from
-		var teamDTO structure.Team
+		var teamDTO models.Team
 
 		// Populate the DTO with our request
 		if err := json.Unmarshal(req, &teamDTO); err != nil {
@@ -160,7 +160,7 @@ func (h *Handler) deleteTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *isAuthorized {
+	if isAuthorized {
 		// Get id from URL params
 		id := chi.URLParam(r, "id")
 

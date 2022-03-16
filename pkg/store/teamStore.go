@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ func NewTeamStore(db *mongo.Database) *TeamStore {
 	return &TeamStore{db: db}
 }
 
-func (ts *TeamStore) GetAllTeams() ([]*structure.Team, error) {
+func (ts *TeamStore) GetAllTeams() ([]*models.Team, error) {
 	collection := ts.db.Collection("teams")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -31,10 +31,10 @@ func (ts *TeamStore) GetAllTeams() ([]*structure.Team, error) {
 	}
 	defer cursor.Close(ctx)
 
-	var allTeams []*structure.Team
+	var allTeams []*models.Team
 
 	for cursor.Next(ctx) {
-		team := &structure.Team{}
+		team := &models.Team{}
 		err := cursor.Decode(team)
 		if err != nil {
 			return nil, err
@@ -46,13 +46,13 @@ func (ts *TeamStore) GetAllTeams() ([]*structure.Team, error) {
 	return allTeams, nil
 }
 
-func (ts *TeamStore) CreateTeam(teamDTO *structure.Team) error {
+func (ts *TeamStore) CreateTeam(teamDTO *models.Team) error {
 	collection := ts.db.Collection("teams")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var newTeam *structure.Team = teamDTO
+	var newTeam *models.Team = teamDTO
 
 	_, err := collection.InsertOne(ctx, newTeam)
 	if err != nil {
@@ -62,13 +62,13 @@ func (ts *TeamStore) CreateTeam(teamDTO *structure.Team) error {
 	return nil
 }
 
-func (ts *TeamStore) GetTeamById(id string) (*structure.Team, error) {
+func (ts *TeamStore) GetTeamById(id string) (*models.Team, error) {
 	collection := ts.db.Collection("teams")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var team *structure.Team
+	var team *models.Team
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
@@ -80,7 +80,7 @@ func (ts *TeamStore) GetTeamById(id string) (*structure.Team, error) {
 	return team, nil
 }
 
-func (ts *TeamStore) UpdateTeam(id string, teamDTO *structure.Team) error {
+func (ts *TeamStore) UpdateTeam(id string, teamDTO *models.Team) error {
 	collection := ts.db.Collection("teams")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

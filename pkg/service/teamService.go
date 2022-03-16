@@ -1,11 +1,11 @@
 package service
 
 import (
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 )
 
 // Request Service - GET /teams - Get all teams.
-func (s *Service) GetAllTeams() ([]*structure.Team, error) {
+func (s *Service) GetAllTeams() ([]*models.Team, error) {
 	allTeams, err := s.store.GetAllTeams()
 	if err != nil {
 		return nil, err
@@ -15,7 +15,7 @@ func (s *Service) GetAllTeams() ([]*structure.Team, error) {
 }
 
 // Request Service - POST /teams - Add new team.
-func (s *Service) CreateTeam(teamDTO structure.Team) error {
+func (s *Service) CreateTeam(teamDTO models.Team) error {
 	// // Check if request has empty strings
 	// if teamDTO.Name == "" && teamDTO.Abbreviation == "" && teamDTO.Location == "" {
 	// 	return errors.New("complete the required fields")
@@ -29,7 +29,7 @@ func (s *Service) CreateTeam(teamDTO structure.Team) error {
 }
 
 // Request Service - GET /teams/{id} - Get team by Id.
-func (s *Service) GetTeamById(id string) (*structure.Team, error) {
+func (s *Service) GetTeamById(id string) (*models.Team, error) {
 	team, err := s.store.GetTeamById(id)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (s *Service) GetTeamById(id string) (*structure.Team, error) {
 }
 
 // Request Service - PUT /team/{id} - Update team by Id.
-func (s *Service) UpdateTeam(id string, teamDTO structure.Team) error {
+func (s *Service) UpdateTeam(id string, teamDTO models.Team) error {
 	// Check if request has empty strings
 	// if teamDTO.Name == "" && teamDTO.Abbreviation == "" && teamDTO.Location == "" {
 	// 	return errors.New("complete the required fields")

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ func NewPlayerStore(db *mongo.Database) *PlayerStore {
 	return &PlayerStore{db: db}
 }
 
-func (ps *PlayerStore) GetAllPlayers() ([]*structure.Player, error) {
+func (ps *PlayerStore) GetAllPlayers() ([]*models.Player, error) {
 	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -31,10 +31,10 @@ func (ps *PlayerStore) GetAllPlayers() ([]*structure.Player, error) {
 	}
 	defer cursor.Close(ctx)
 
-	var allPlayers []*structure.Player
+	var allPlayers []*models.Player
 
 	for cursor.Next(ctx) {
-		player := &structure.Player{}
+		player := &models.Player{}
 		err := cursor.Decode(player)
 		if err != nil {
 			return nil, err
@@ -46,13 +46,13 @@ func (ps *PlayerStore) GetAllPlayers() ([]*structure.Player, error) {
 	return allPlayers, nil
 }
 
-func (ps *PlayerStore) CreatePlayer(playerDTO *structure.Player) error {
+func (ps *PlayerStore) CreatePlayer(playerDTO *models.Player) error {
 	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var newPlayer *structure.Player = playerDTO
+	var newPlayer *models.Player = playerDTO
 
 	_, err := collection.InsertOne(ctx, newPlayer)
 	if err != nil {
@@ -62,13 +62,13 @@ func (ps *PlayerStore) CreatePlayer(playerDTO *structure.Player) error {
 	return nil
 }
 
-func (ps *PlayerStore) GetPlayerById(id string) (*structure.Player, error) {
+func (ps *PlayerStore) GetPlayerById(id string) (*models.Player, error) {
 	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var player *structure.Player
+	var player *models.Player
 
 	objId, _ := primitive.ObjectIDFromHex(id)
 
@@ -80,7 +80,7 @@ func (ps *PlayerStore) GetPlayerById(id string) (*structure.Player, error) {
 	return player, nil
 }
 
-func (ps *PlayerStore) UpdatePlayer(id string, playerDTO *structure.Player) error {
+func (ps *PlayerStore) UpdatePlayer(id string, playerDTO *models.Player) error {
 	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -129,7 +129,7 @@ func (ps *PlayerStore) DeletePlayer(id string) error {
 	return nil
 }
 
-func (ps *PlayerStore) GetPlayerByName(searchParams []string) ([]*structure.Player, error) {
+func (ps *PlayerStore) GetPlayerByName(searchParams []string) ([]*models.Player, error) {
 	collection := ps.db.Collection("players")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -162,10 +162,10 @@ func (ps *PlayerStore) GetPlayerByName(searchParams []string) ([]*structure.Play
 	}
 	defer cursor.Close(ctx)
 
-	var foundPlayers []*structure.Player
+	var foundPlayers []*models.Player
 
 	for cursor.Next(ctx) {
-		player := &structure.Player{}
+		player := &models.Player{}
 		err := cursor.Decode(player)
 		if err != nil {
 			return nil, err
@@ -175,7 +175,7 @@ func (ps *PlayerStore) GetPlayerByName(searchParams []string) ([]*structure.Play
 	}
 
 	if foundPlayers == nil {
-		foundPlayers = make([]*structure.Player, 0)
+		foundPlayers = make([]*models.Player, 0)
 		return foundPlayers, nil
 	}
 

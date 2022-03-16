@@ -1,31 +1,33 @@
 package store
 
 import (
-	structure "github.com/OctavianUrsu/go-nbaplayers-api"
+	"github.com/OctavianUrsu/go-nbaplayers-api/pkg/models"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type IPlayerStore interface {
-	GetAllPlayers() ([]*structure.Player, error)
-	CreatePlayer(playerDTO *structure.Player) error
-	GetPlayerById(id string) (*structure.Player, error)
-	UpdatePlayer(id string, playerDTO *structure.Player) error
+	GetAllPlayers() ([]*models.Player, error)
+	CreatePlayer(playerDTO *models.Player) error
+	GetPlayerById(id string) (*models.Player, error)
+	UpdatePlayer(id string, playerDTO *models.Player) error
 	DeletePlayer(id string) error
-	GetPlayerByName(name []string) ([]*structure.Player, error)
+	GetPlayerByName(name []string) ([]*models.Player, error)
 }
 
 type ITeamStore interface {
-	GetAllTeams() ([]*structure.Team, error)
-	CreateTeam(teamDTO *structure.Team) error
-	GetTeamById(id string) (*structure.Team, error)
-	UpdateTeam(id string, teamDTO *structure.Team) error
+	GetAllTeams() ([]*models.Team, error)
+	CreateTeam(teamDTO *models.Team) error
+	GetTeamById(id string) (*models.Team, error)
+	UpdateTeam(id string, teamDTO *models.Team) error
 	DeleteTeam(id string) error
 }
 
 type IUserStore interface {
-	Signup(userSignupDTO *structure.User) error
-	FindUserByNickname(userSigninNickname string) (*structure.UserSignin, error)
-	FindUserByTokenClaims(claims *structure.SignedClaims) (*bool, error)
+	Signup(userSignupDTO *models.User) error
+	NicknameExists(user *models.User) bool
+	EmailExists(user *models.User) bool
+	GetHashedPassword(userSigninNickname string) (string, error)
+	//FindUserByTokenClaims(claims *models.SignedClaims) (*bool, error)
 }
 
 type Store struct {
